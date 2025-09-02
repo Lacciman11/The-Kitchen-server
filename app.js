@@ -34,7 +34,7 @@ app.use(limiter);
 
 // Example routes
 app.get("/", (req, res) => {
-  res.send("Hello — server with middleware is running");
+  res.send("Hello there");
 });
 
 app.get("/api/echo", (req, res) => {
