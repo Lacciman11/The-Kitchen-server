@@ -5,8 +5,10 @@ const morgan = require("morgan");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const rateLimit = require("express-rate-limit");
+const authRoutes = require("./src/routers/authRoutes");
 
-const app = express();
+
+const app = express(); 
 
 // Basic middleware
 app.use(helmet());                     // security headers
@@ -32,13 +34,14 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Example routes
+// Routes
+app.use("/api/auth", authRoutes);  
+
 app.get("/", (req, res) => {
   res.send("Hello there");
 });
 
 app.get("/api/echo", (req, res) => {
-  // echo small info to show cookies and query working
   res.json({
     message: "echo",
     query: req.query,
