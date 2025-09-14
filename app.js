@@ -1,4 +1,4 @@
-// app.js — Express app with security, logging, CORS, cookies, and rate limiting
+require("dotenv").config();
 const express = require("express");
 const helmet = require("helmet");
 const morgan = require("morgan");
@@ -7,38 +7,39 @@ const cookieParser = require("cookie-parser");
 const rateLimit = require("express-rate-limit");
 const authRoutes = require("./src/routers/authRoutes");
 
+const app = express();
 
-const app = express(); 
-
-// Basic middleware
-app.use(helmet());                     // security headers
-app.use(express.json());               // parse JSON bodies
+// Middleware
+app.use(helmet());
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());               // parse cookies
+app.use(cookieParser());
 
-// CORS (allow origin from .env or any)
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || "*",
-  credentials: true,
-}));
+// CORS
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+    credentials: true,
+  })
+);
 
 // Logging
 app.use(morgan(process.env.MORGAN_FORMAT || "dev"));
 
-// Simple rate limiter (tweak as needed)
+// Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: Number(process.env.RATE_LIMIT_MAX || 100), // limit each IP
+  windowMs: 15 * 60 * 1000,
+  max: Number(process.env.RATE_LIMIT_MAX || 100),
   standardHeaders: true,
   legacyHeaders: false,
 });
 app.use(limiter);
 
 // Routes
-app.use("/api/auth", authRoutes);  
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Hello there");
+  res.send("Hello there 👋");
 });
 
 app.get("/api/echo", (req, res) => {

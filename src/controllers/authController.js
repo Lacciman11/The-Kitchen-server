@@ -1,7 +1,10 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const Buyer = require("../models/Buyer");
 const Seller = require("../models/Seller");
 const Rider = require("../models/Rider");
+
+// ================= SIGNUP =================
 
 // Buyer Signup
 exports.registerBuyer = async (req, res) => {
@@ -25,7 +28,20 @@ exports.registerBuyer = async (req, res) => {
 // Seller Signup
 exports.registerSeller = async (req, res) => {
   try {
-    const { title, firstName, lastName, phoneNumber, address, city, state, landmark, storeName, description, email, password } = req.body;
+    const {
+      title,
+      firstName,
+      lastName,
+      phoneNumber,
+      address,
+      city,
+      state,
+      landmark,
+      storeName,
+      description,
+      email,
+      password,
+    } = req.body;
 
     const existingUser = await Seller.findOne({ email });
     if (existingUser) return res.status(400).json({ message: "Email already exists" });
@@ -44,7 +60,7 @@ exports.registerSeller = async (req, res) => {
       storeName,
       description,
       email,
-      password: hashedPassword
+      password: hashedPassword,
     });
     await newSeller.save();
 
@@ -67,7 +83,7 @@ exports.registerRider = async (req, res) => {
       password,
       hasLogisticsExperience,
       hasEcommerceExperience,
-      isCourierRegistered
+      isCourierRegistered,
     } = req.body;
 
     const existingUser = await Rider.findOne({ email });
@@ -85,7 +101,7 @@ exports.registerRider = async (req, res) => {
       password: hashedPassword,
       hasLogisticsExperience,
       hasEcommerceExperience,
-      isCourierRegistered
+      isCourierRegistered,
     });
     await newRider.save();
 
@@ -93,4 +109,58 @@ exports.registerRider = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+// ================= LOGIN =================
+exports.loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    let user = await Buyer.findOne({ email });
+    let role = "buyer";
+
+    if (!user) {
+      user = await Seller.findOne({ email });
+      role = "seller";
+    }
+    if (!user) {
+      user = await Rider.findOne({ email });
+      role = "rider";
+    }
+
+    if (!user) return res.status(400).json({ message: "Invalid email or password" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid email or password" });
+
+    // 🔹 Generate JWT
+    const token = jwt.sign({ id: user._id, role }, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+    // 🔹 Store JWT in httpOnly cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+
+    res.status(200).json({
+      message: "Login successful",
+      role,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name || `${user.firstName} ${user.lastName}`,
+      },
+      token, // optional
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ================= LOGOUT =================
+exports.logoutUser = (req, res) => {
+  res.clearCookie("token");
+  res.status(200).json({ message: "Logged out successfully" });
 };
