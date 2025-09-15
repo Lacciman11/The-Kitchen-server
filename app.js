@@ -5,7 +5,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const rateLimit = require("express-rate-limit");
-const authRoutes = require("./src/routers/authRoutes");
+const authRoutes = require("./src/routers/Auth/authRoutes");
 
 const app = express();
 

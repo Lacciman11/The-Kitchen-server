@@ -5,7 +5,7 @@ const {
   registerRider, 
   loginUser, 
   logoutUser 
-} = require("../controllers/authController");
+} = require("../../controllers/Auth/authController");
 
 const authMiddleware = require("../../middleware/authMiddleware");
 
