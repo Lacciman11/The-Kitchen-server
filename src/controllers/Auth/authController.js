@@ -1,8 +1,8 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const Buyer = require("../models/Buyer");
-const Seller = require("../models/Seller");
-const Rider = require("../models/Rider");
+const Buyer = require("../../models/Buyer");
+const Seller = require("../../models/Seller");
+const Rider = require("../../models/Rider");
 
 // ================= SIGNUP =================
 

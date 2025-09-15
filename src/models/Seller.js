@@ -12,7 +12,8 @@ const sellerSchema = new mongoose.Schema({
   storeName: { type: String, required: true },
   description: { type: String },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+   profilePicUrl:{ type: String,}
 });
 
 module.exports = mongoose.model("Seller", sellerSchema);
