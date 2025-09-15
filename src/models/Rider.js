@@ -10,7 +10,8 @@ const riderSchema = new mongoose.Schema({
   password: { type: String, required: true },
   hasLogisticsExperience: { type: Boolean, default: false },
   hasEcommerceExperience: { type: Boolean, default: false },
-  isCourierRegistered: { type: Boolean, default: false }
+  isCourierRegistered: { type: Boolean, default: false },
+   profilePicUrl:{ type: String,}
 });
 
 module.exports = mongoose.model("Rider", riderSchema);
