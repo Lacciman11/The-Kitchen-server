@@ -16,10 +16,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // CORS
+const allowedOrigins = [
+  "http://127.0.0.1:5501",  
+  "http://localhost:3000",      
+];
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
-    credentials: true,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("CORS policy: This origin is not allowed"));
+    },
+    credentials: true, 
   })
 );
 

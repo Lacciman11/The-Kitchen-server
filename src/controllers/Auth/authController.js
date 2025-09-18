@@ -111,7 +111,6 @@ exports.registerRider = async (req, res) => {
   }
 };
 
-// ================= LOGIN =================
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -127,7 +126,6 @@ exports.loginUser = async (req, res) => {
       user = await Rider.findOne({ email });
       role = "rider";
     }
-
     if (!user) return res.status(400).json({ message: "Invalid email or password" });
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -136,12 +134,12 @@ exports.loginUser = async (req, res) => {
     // 🔹 Generate JWT
     const token = jwt.sign({ id: user._id, role }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
-    // 🔹 Store JWT in httpOnly cookie
+    // 🔹 Store JWT in cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      secure: process.env.NODE_ENV === "production", 
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     res.status(200).json({
@@ -152,7 +150,6 @@ exports.loginUser = async (req, res) => {
         email: user.email,
         name: user.name || `${user.firstName} ${user.lastName}`,
       },
-      token, // optional
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
