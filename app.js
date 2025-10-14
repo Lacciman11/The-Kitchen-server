@@ -15,22 +15,29 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// CORS
-const allowedOrigins = [
-  "http://127.0.0.1:5501",  
-  "http://localhost:3000",      
-];
-
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(new Error("CORS policy: This origin is not allowed"));
+    origin: (origin, callback) => {
+      if (!origin) {
+        console.log("No origin (Postman or internal request) — allowed");
+        return callback(null, true);
+      }
+
+      if (
+        origin.startsWith("http://localhost") ||
+        origin.startsWith("http://127.0.0.1")
+      ) {
+        console.log(`Allowed local origin: ${origin}`);
+        return callback(null, true);
+      }
+
+      console.warn(`Blocked by CORS: ${origin}`);
+      callback(new Error("CORS policy: This origin is not allowed"));
     },
-    credentials: true, 
+    credentials: true,
   })
 );
+
 
 // Logging
 app.use(morgan(process.env.MORGAN_FORMAT || "dev"));
